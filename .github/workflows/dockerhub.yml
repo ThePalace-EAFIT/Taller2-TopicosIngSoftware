@@ -3,8 +3,8 @@ name: Build & Push to Docker Hub
 on:
   push:
     branches: [ "main" ]
-  tags:
-    - "v*.*.*"
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
  
 jobs:
@@ -15,18 +15,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
  
-      - name: Set image coordinates
-        id: img
-        run: |
-          echo "USER=${{ secrets.DOCKERHUB_USERNAME }}" >> $GITHUB_OUTPUT
-          # Si no definiste IMAGE_NAME como secret, usa 'pokeneas' por defecto
-          echo "NAME=${{ secrets.IMAGE_NAME || 'pokeneas' }}" >> $GITHUB_OUTPUT
- 
-      - name: Docker meta (autotags)
+      - name: Docker meta (auto-tags)
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ steps.img.outputs.USER }}/${{ steps.img.outputs.NAME }}
+          images: ${{ secrets.DOCKERHUB_USERNAME }}/pokeneas
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha,format=short
@@ -53,5 +46,5 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ steps.img.outputs.USER }}/${{ steps.img.outputs.NAME }}:buildcache
-          cache-to: type=registry,ref=${{ steps.img.outputs.USER }}/${{ steps.img.outputs.NAME }}:buildcache,mode=max
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/pokeneas:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/pokeneas:buildcache,mode=max
